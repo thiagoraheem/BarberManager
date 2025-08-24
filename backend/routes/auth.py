@@ -15,14 +15,17 @@ router = APIRouter()
 async def login(login_data: Login, db: Session = Depends(get_db)):
     """Login do usuário"""
     try:
+        print(f"Tentativa de login: email={login_data.email}")
         user = authenticate_user(db, login_data.email, login_data.password)
         if not user:
+            print(f"Falha na autenticação para: {login_data.email}")
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Email ou senha incorretos",
                 headers={"WWW-Authenticate": "Bearer"},
             )
         
+        print(f"Login bem-sucedido para: {login_data.email}")
         access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
         access_token = create_access_token(
             data={"sub": user.email}, expires_delta=access_token_expires
@@ -33,6 +36,7 @@ async def login(login_data: Login, db: Session = Depends(get_db)):
     except HTTPException:
         raise
     except Exception as e:
+        print(f"Erro no endpoint de login: {e}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Erro interno do servidor"
