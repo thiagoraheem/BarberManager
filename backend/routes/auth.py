@@ -36,7 +36,7 @@ async def login(login_data: Login, db: Session = Depends(get_db)):
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Erro interno do servidor"
-        )}
+        )
 
 @router.post("/register", response_model=UserSchema)
 async def register(user_data: UserCreate, db: Session = Depends(get_db)):
