@@ -108,3 +108,15 @@ async def get_current_active_user(current_user = Depends(get_current_user)):
     if not current_user.ativo:
         raise HTTPException(status_code=400, detail="Usuário inativo")
     return current_user
+
+def require_role(allowed_roles: list):
+    """Decorator para verificar se o usuário tem permissão baseada no role"""
+    async def role_checker(current_user = Depends(get_current_active_user)):
+        from models import UserRole
+        if current_user.role not in allowed_roles:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Permissões insuficientes"
+            )
+        return current_user
+    return role_checker
