@@ -50,7 +50,7 @@ export const AuthProvider = ({ children }) => {
       setError(null); // Limpar erro anterior
       const response = await api.post('/auth/login', {
         email,
-        senha: password
+        password: password
       });
 
       const { access_token } = response.data;
