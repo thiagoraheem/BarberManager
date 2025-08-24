@@ -162,6 +162,14 @@ class TokenData(BaseModel):
 class Login(BaseModel):
     email: EmailStr
     senha: str
+    
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "email": "admin@barbearia.com",
+                "senha": "admin123"
+            }
+        }
 
 # Dashboard schemas
 class DashboardStats(BaseModel):

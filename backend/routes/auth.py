@@ -14,20 +14,29 @@ router = APIRouter()
 @router.post("/login", response_model=Token)
 async def login(login_data: Login, db: Session = Depends(get_db)):
     """Login do usuário"""
-    user = authenticate_user(db, login_data.email, login_data.senha)
-    if not user:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Email ou senha incorretos",
-            headers={"WWW-Authenticate": "Bearer"},
+    try:
+        user = authenticate_user(db, login_data.email, login_data.senha)
+        if not user:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Email ou senha incorretos",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+        
+        access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+        access_token = create_access_token(
+            data={"sub": user.email}, expires_delta=access_token_expires
         )
+        
+        return {"access_token": access_token, "token_type": "bearer"}
     
-    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-    access_token = create_access_token(
-        data={"sub": user.email}, expires_delta=access_token_expires
-    )
-    
-    return {"access_token": access_token, "token_type": "bearer"}
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Erro interno do servidor"
+        )}
 
 @router.post("/register", response_model=UserSchema)
 async def register(user_data: UserCreate, db: Session = Depends(get_db)):

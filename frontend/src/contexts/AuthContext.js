@@ -43,25 +43,63 @@ export const AuthProvider = ({ children }) => {
     checkAuth();
   }, [token]);
 
-  const login = async (email, senha) => {
+  const login = async (email, password) => {
     try {
-      const response = await api.post('/auth/login', { email, senha });
+      setLoading(true);
+      const response = await api.post('/auth/login', { 
+        email, 
+        senha: password 
+      });
+
       const { access_token } = response.data;
-      
+
       localStorage.setItem('token', access_token);
-      setToken(access_token);
-      
+
       // Buscar dados do usuário
-      const userResponse = await api.get('/auth/me');
+      const userResponse = await api.get('/auth/me', {
+        headers: { Authorization: `Bearer ${access_token}` }
+      });
+
       setUser(userResponse.data);
-      
+      setToken(access_token);
+
       return { success: true };
     } catch (error) {
       console.error('Erro no login:', error);
+
+      let errorMessage = 'Erro no login';
+
+      if (error.response) {
+        // Servidor retornou um erro
+        if (error.response.data) {
+          if (typeof error.response.data.detail === 'string') {
+            errorMessage = error.response.data.detail;
+          } else if (error.response.data.message) {
+            errorMessage = error.response.data.message;
+          } else if (error.response.data.error) {
+            errorMessage = error.response.data.error;
+          }
+        }
+
+        // Tratar códigos de erro específicos
+        if (error.response.status === 401) {
+          errorMessage = 'Email ou senha incorretos';
+        } else if (error.response.status === 422) {
+          errorMessage = 'Dados inválidos. Verifique email e senha';
+        } else if (error.response.status >= 500) {
+          errorMessage = 'Erro interno do servidor. Tente novamente';
+        }
+      } else if (error.request) {
+        // Erro de rede
+        errorMessage = 'Erro de conexão. Verifique sua internet';
+      }
+
       return { 
         success: false, 
-        error: error.response?.data?.detail || 'Erro ao fazer login' 
+        error: errorMessage
       };
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -103,10 +141,10 @@ export const AuthProvider = ({ children }) => {
     try {
       const response = await api.post('/auth/refresh');
       const { access_token } = response.data;
-      
+
       localStorage.setItem('token', access_token);
       setToken(access_token);
-      
+
       return true;
     } catch (error) {
       console.error('Erro ao renovar token:', error);

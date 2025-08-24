@@ -37,7 +37,7 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
         expire = datetime.utcnow() + expires_delta
     else:
         expire = datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-    
+
     to_encode.update({"exp": expire})
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
@@ -62,15 +62,19 @@ def verify_token(token: str):
         )
 
 def authenticate_user(db: Session, email: str, password: str):
-    """Autenticar usuário"""
-    user = get_user_by_email(db, email)
-    if not user:
+    """Autentica usuário"""
+    try:
+        user = get_user_by_email(db, email)
+        if not user:
+            return False
+        if not user.ativo:
+            return False
+        if not verify_password(password, user.senha_hash):
+            return False
+        return user
+    except Exception as e:
+        print(f"Erro na autenticação: {e}")
         return False
-    if not verify_password(password, user.senha_hash):
-        return False
-    if not user.ativo:
-        return False
-    return user
 
 async def get_current_user(
     credentials: HTTPAuthorizationCredentials = Depends(security),

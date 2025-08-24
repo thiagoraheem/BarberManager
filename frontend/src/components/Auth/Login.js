@@ -23,15 +23,24 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
     setError('');
+
+    if (!formData.email || !formData.senha) {
+      setError('Por favor, preencha email e senha');
+      return;
+    }
+
+    setLoading(true); // Mover setLoading para depois da validação inicial
 
     try {
       const result = await login(formData.email, formData.senha);
       if (result.success) {
         navigate('/', { replace: true });
       } else {
-        setError(result.error);
+        const errorMessage = typeof result.error === 'string'
+          ? result.error
+          : 'Erro no login. Tente novamente';
+        setError(errorMessage);
       }
     } catch (err) {
       setError('Erro inesperado. Tente novamente.');
@@ -40,10 +49,11 @@ const Login = () => {
     }
   };
 
+
   return (
     <div className="min-vh-100 d-flex">
       {/* Lado esquerdo - Imagem/Info */}
-      <div 
+      <div
         className="col-md-6 d-none d-md-flex flex-column justify-content-center align-items-center text-white position-relative"
         style={{
           background: 'linear-gradient(135deg, var(--primary), var(--accent))',
