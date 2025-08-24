@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 const Login = () => {
   const [formData, setFormData] = useState({
     email: '',
-    senha: ''
+    password: '' // Campo de senha alterado para 'password'
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -25,7 +25,8 @@ const Login = () => {
     e.preventDefault();
     setError('');
 
-    if (!formData.email || !formData.senha) {
+    // Validação inicial antes de chamar o login
+    if (!formData.email || !formData.password) {
       setError('Por favor, preencha email e senha');
       return;
     }
@@ -33,16 +34,19 @@ const Login = () => {
     setLoading(true); // Mover setLoading para depois da validação inicial
 
     try {
-      const result = await login(formData.email, formData.senha);
+      // Passar os dados do formulário corretamente
+      const result = await login(formData.email, formData.password);
       if (result.success) {
         navigate('/', { replace: true });
       } else {
+        // Exibir a mensagem de erro corretamente
         const errorMessage = typeof result.error === 'string'
           ? result.error
           : 'Erro no login. Tente novamente';
         setError(errorMessage);
       }
     } catch (err) {
+      // Exibir mensagem de erro genérica em caso de erro inesperado
       setError('Erro inesperado. Tente novamente.');
     } finally {
       setLoading(false);
@@ -104,10 +108,11 @@ const Login = () => {
                 Fazer Login
               </h3>
 
+              {/* Exibição de erro corrigida para mostrar string ou mensagem genérica */}
               {error && (
                 <div className="alert alert-danger d-flex align-items-center" role="alert">
                   <i className="fas fa-exclamation-triangle me-2"></i>
-                  {error}
+                  {typeof error === 'string' ? error : 'Erro no login'}
                 </div>
               )}
 
@@ -131,16 +136,16 @@ const Login = () => {
                 </div>
 
                 <div className="mb-4">
-                  <label htmlFor="senha" className="form-label">
+                  <label htmlFor="password" className="form-label"> {/* Label atualizada para 'password' */}
                     <i className="fas fa-lock me-2"></i>
                     Senha
                   </label>
                   <input
                     type="password"
                     className="form-control"
-                    id="senha"
-                    name="senha"
-                    value={formData.senha}
+                    id="password" // ID atualizado para 'password'
+                    name="password" // Nome do campo atualizado para 'password'
+                    value={formData.password} // Valor do campo atualizado para 'password'
                     onChange={handleChange}
                     required
                     placeholder="••••••••"

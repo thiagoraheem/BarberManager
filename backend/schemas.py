@@ -161,7 +161,7 @@ class TokenData(BaseModel):
 
 class Login(BaseModel):
     email: EmailStr
-    senha: str
+    password: str
     
     class Config:
         json_schema_extra = {

@@ -15,6 +15,7 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [token, setToken] = useState(localStorage.getItem('token'));
+  const [error, setError] = useState(null); // Adicionado estado para error
 
   // Configurar interceptor do axios para incluir token
   useEffect(() => {
@@ -46,9 +47,10 @@ export const AuthProvider = ({ children }) => {
   const login = async (email, password) => {
     try {
       setLoading(true);
-      const response = await api.post('/auth/login', { 
-        email, 
-        senha: password 
+      setError(null); // Limpar erro anterior
+      const response = await api.post('/auth/login', {
+        email,
+        senha: password
       });
 
       const { access_token } = response.data;
@@ -66,38 +68,18 @@ export const AuthProvider = ({ children }) => {
       return { success: true };
     } catch (error) {
       console.error('Erro no login:', error);
-
       let errorMessage = 'Erro no login';
 
-      if (error.response) {
-        // Servidor retornou um erro
-        if (error.response.data) {
-          if (typeof error.response.data.detail === 'string') {
-            errorMessage = error.response.data.detail;
-          } else if (error.response.data.message) {
-            errorMessage = error.response.data.message;
-          } else if (error.response.data.error) {
-            errorMessage = error.response.data.error;
-          }
-        }
-
-        // Tratar códigos de erro específicos
-        if (error.response.status === 401) {
-          errorMessage = 'Email ou senha incorretos';
-        } else if (error.response.status === 422) {
-          errorMessage = 'Dados inválidos. Verifique email e senha';
-        } else if (error.response.status >= 500) {
-          errorMessage = 'Erro interno do servidor. Tente novamente';
-        }
-      } else if (error.request) {
-        // Erro de rede
-        errorMessage = 'Erro de conexão. Verifique sua internet';
+      if (error.response?.data?.detail) {
+        errorMessage = error.response.data.detail;
+      } else if (error.response?.data?.message) {
+        errorMessage = error.response.data.message;
+      } else if (error.message) {
+        errorMessage = error.message;
       }
 
-      return { 
-        success: false, 
-        error: errorMessage
-      };
+      setError(errorMessage);
+      throw new Error(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -116,9 +98,9 @@ export const AuthProvider = ({ children }) => {
       return { success: true, data: response.data };
     } catch (error) {
       console.error('Erro no registro:', error);
-      return { 
-        success: false, 
-        error: error.response?.data?.detail || 'Erro ao registrar usuário' 
+      return {
+        success: false,
+        error: error.response?.data?.detail || 'Erro ao registrar usuário'
       };
     }
   };
@@ -130,9 +112,9 @@ export const AuthProvider = ({ children }) => {
       return { success: true, data: response.data };
     } catch (error) {
       console.error('Erro ao atualizar perfil:', error);
-      return { 
-        success: false, 
-        error: error.response?.data?.detail || 'Erro ao atualizar perfil' 
+      return {
+        success: false,
+        error: error.response?.data?.detail || 'Erro ao atualizar perfil'
       };
     }
   };
@@ -162,7 +144,8 @@ export const AuthProvider = ({ children }) => {
     logout,
     register,
     updateProfile,
-    refreshToken
+    refreshToken,
+    error // Incluir error no value do context
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

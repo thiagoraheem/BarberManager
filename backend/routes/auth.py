@@ -15,7 +15,7 @@ router = APIRouter()
 async def login(login_data: Login, db: Session = Depends(get_db)):
     """Login do usuário"""
     try:
-        user = authenticate_user(db, login_data.email, login_data.senha)
+        user = authenticate_user(db, login_data.email, login_data.password)
         if not user:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
