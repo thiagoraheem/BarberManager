@@ -34,6 +34,12 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Health endpoint (must be before static files mount)
+@app.get("/api/health")
+async def health_check():
+    """Verificação de saúde da API"""
+    return {"status": "OK", "message": "Sistema de Gestão de Barbearia funcionando!"}
+
 # Routes
 app.include_router(auth.router, prefix="/api/auth", tags=["Autenticação"])
 app.include_router(users.router, prefix="/api/users", tags=["Usuários"])
@@ -43,13 +49,8 @@ app.include_router(appointments.router, prefix="/api/appointments", tags=["Agend
 app.include_router(pos.router, prefix="/api/pos", tags=["Ponto de Venda"])
 app.include_router(dashboard.router, prefix="/api/dashboard", tags=["Dashboard"])
 
-# Static files for frontend
+# Static files for frontend (must be last)
 app.mount("/", StaticFiles(directory="../frontend/build", html=True), name="frontend")
-
-@app.get("/api/health")
-async def health_check():
-    """Verificação de saúde da API"""
-    return {"status": "OK", "message": "Sistema de Gestão de Barbearia funcionando!"}
 
 if __name__ == "__main__":
     uvicorn.run(
