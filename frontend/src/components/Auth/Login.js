@@ -31,21 +31,26 @@ const Login = () => {
       return;
     }
 
-    setLoading(true); // Mover setLoading para depois da validação inicial
+    setLoading(true);
 
     try {
+      console.log('Dados de login:', { email: formData.email, password: formData.password });
+      
       // Passar os dados do formulário corretamente
       const result = await login(formData.email, formData.password);
+      console.log('Resultado do login:', result);
+      
       if (result.success) {
         navigate('/', { replace: true });
       } else {
         // Exibir a mensagem de erro corretamente
         const errorMessage = typeof result.error === 'string'
           ? result.error
-          : 'Erro no login. Tente novamente';
+          : result.error?.message || 'Erro no login. Tente novamente';
         setError(errorMessage);
       }
     } catch (err) {
+      console.error('Erro no login:', err);
       // Exibir mensagem de erro genérica em caso de erro inesperado
       setError('Erro inesperado. Tente novamente.');
     } finally {

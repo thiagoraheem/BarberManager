@@ -167,7 +167,7 @@ class Login(BaseModel):
         json_schema_extra = {
             "example": {
                 "email": "admin@barbearia.com",
-                "senha": "admin123"
+                "password": "admin123"
             }
         }
 

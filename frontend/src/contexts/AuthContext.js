@@ -68,18 +68,44 @@ export const AuthProvider = ({ children }) => {
       return { success: true };
     } catch (error) {
       console.error('Erro no login:', error);
-      let errorMessage = 'Erro no login';
+      console.error('Detalhes do erro:', {
+        response: error.response?.data,
+        status: error.response?.status,
+        headers: error.response?.headers
+      });
 
-      if (error.response?.data?.detail) {
-        errorMessage = error.response.data.detail;
-      } else if (error.response?.data?.message) {
-        errorMessage = error.response.data.message;
-      } else if (error.message) {
-        errorMessage = error.message;
+      let errorMessage = 'Erro no login. Tente novamente.';
+
+      if (error.response) {
+        // Erro da API
+        switch (error.response.status) {
+          case 401:
+            errorMessage = 'Email ou senha incorretos';
+            break;
+          case 422:
+            // Capturar detalhes de validação do erro 422
+            const validationDetails = error.response.data?.detail;
+            if (Array.isArray(validationDetails)) {
+              const fieldErrors = validationDetails.map(err => `${err.loc?.join('.')}: ${err.msg}`).join(', ');
+              errorMessage = `Dados inválidos: ${fieldErrors}`;
+            } else if (typeof validationDetails === 'string') {
+              errorMessage = `Erro de validação: ${validationDetails}`;
+            } else {
+              errorMessage = 'Dados inválidos. Verifique email e senha.';
+            }
+            break;
+          case 500:
+            errorMessage = 'Erro interno do servidor';
+            break;
+          default:
+            errorMessage = error.response.data?.detail || 'Erro no servidor';
+        }
+      } else if (error.request) {
+        errorMessage = 'Erro de conexão. Verifique sua internet.';
       }
 
       setError(errorMessage);
-      throw new Error(errorMessage);
+      return { success: false, error: errorMessage };
     } finally {
       setLoading(false);
     }
