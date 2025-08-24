@@ -50,7 +50,7 @@ app.include_router(pos.router, prefix="/api/pos", tags=["Ponto de Venda"])
 app.include_router(dashboard.router, prefix="/api/dashboard", tags=["Dashboard"])
 
 # Static files for frontend (must be last)
-app.mount("/", StaticFiles(directory="../frontend/build", html=True), name="frontend")
+# app.mount("/", StaticFiles(directory="../frontend/build", html=True), name="frontend")
 
 if __name__ == "__main__":
     uvicorn.run(

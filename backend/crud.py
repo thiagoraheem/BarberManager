@@ -131,8 +131,16 @@ def update_service(db: Session, service_id: int, service_update):
 def get_appointment(db: Session, appointment_id: int):
     return db.query(Appointment).filter(Appointment.id == appointment_id).first()
 
-def get_appointments(db: Session, skip: int = 0, limit: int = 100):
-    return db.query(Appointment).offset(skip).limit(limit).all()
+def get_appointments(db: Session, skip: int = 0, limit: int = 100, date_filter=None, barbeiro_id=None):
+    query = db.query(Appointment)
+    
+    if date_filter:
+        query = query.filter(Appointment.data_hora.date() == date_filter)
+    
+    if barbeiro_id:
+        query = query.filter(Appointment.barbeiro_id == barbeiro_id)
+    
+    return query.offset(skip).limit(limit).all()
 
 def create_appointment(db: Session, appointment: AppointmentCreate):
     db_appointment = Appointment(**appointment.dict())
@@ -141,7 +149,32 @@ def create_appointment(db: Session, appointment: AppointmentCreate):
     db.refresh(db_appointment)
     return db_appointment
 
+def update_appointment(db: Session, appointment_id: int, appointment_update):
+    db_appointment = db.query(Appointment).filter(Appointment.id == appointment_id).first()
+    if not db_appointment:
+        return None
+    
+    update_data = appointment_update.dict(exclude_unset=True)
+    
+    for key, value in update_data.items():
+        setattr(db_appointment, key, value)
+    
+    db.commit()
+    db.refresh(db_appointment)
+    return db_appointment
+
 # Sale CRUD
+def get_sales(db: Session, skip: int = 0, limit: int = 100, start_date=None, end_date=None):
+    query = db.query(Sale)
+    
+    if start_date:
+        query = query.filter(Sale.criado_em.date() >= start_date)
+    
+    if end_date:
+        query = query.filter(Sale.criado_em.date() <= end_date)
+    
+    return query.offset(skip).limit(limit).all()
+
 def create_sale(db: Session, sale: SaleCreate, vendedor_id: int):
     # Calcular total
     total = sum(item.quantidade * item.preco_unitario for item in sale.itens)
@@ -178,6 +211,7 @@ def create_sale(db: Session, sale: SaleCreate, vendedor_id: int):
 def get_dashboard_stats(db: Session):
     """Obter estatísticas para o dashboard"""
     from datetime import date
+    from sqlalchemy import func
     
     # Contar totais
     total_clients = db.query(Client).filter(Client.ativo == True).count()
@@ -187,12 +221,24 @@ def get_dashboard_stats(db: Session):
     # Agendamentos de hoje
     today = date.today()
     appointments_today = db.query(Appointment).filter(
-        Appointment.data_agendamento == today
+        func.date(Appointment.data_hora) == today
     ).count()
     
+    # Agendamentos pendentes
+    from models import AppointmentStatus
+    appointments_pending = db.query(Appointment).filter(
+        Appointment.status == AppointmentStatus.AGENDADO
+    ).count()
+    
+    # Faturamento do mês atual
+    current_month = today.replace(day=1)
+    monthly_revenue = db.query(func.sum(Sale.total)).filter(
+        func.date(Sale.criado_em) >= current_month
+    ).scalar() or 0.0
+    
     return {
-        "total_clients": total_clients,
-        "total_services": total_services,
-        "total_users": total_users,
-        "appointments_today": appointments_today
+        "clientes_total": total_clients,
+        "agendamentos_hoje": appointments_today,
+        "agendamentos_pendentes": appointments_pending,
+        "faturamento_mes": monthly_revenue
     }
