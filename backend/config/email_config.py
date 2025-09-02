@@ -1,6 +1,7 @@
 import os
 from typing import Optional
-from pydantic import BaseSettings, EmailStr
+from pydantic import EmailStr
+from pydantic_settings import BaseSettings
 
 class EmailSettings(BaseSettings):
     """

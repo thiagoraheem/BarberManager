@@ -1,9 +1,9 @@
-import React, { useState, useContext } from 'react';
-import { AuthContext } from '../contexts/AuthContext';
-import api from '../utils/api';
+import React, { useState } from 'react';
+import { useAuth } from '../contexts/AuthContext';
+import { api } from '../utils/api';
 
 const Reports = () => {
-  const { user } = useContext(AuthContext);
+  const { user } = useAuth();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');

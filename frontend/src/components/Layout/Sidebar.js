@@ -1,10 +1,9 @@
 import React from 'react';
-import { NavLink, useLocation } from 'react-router-dom';
+import { NavLink } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 
 const Sidebar = () => {
   const { user, logout } = useAuth();
-  const location = useLocation();
 
   const menuItems = [
     { path: '/', icon: 'fas fa-chart-dashboard', label: 'Dashboard' },

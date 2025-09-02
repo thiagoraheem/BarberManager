@@ -1,9 +1,9 @@
-import React, { useState, useEffect, useContext } from 'react';
-import { AuthContext } from '../contexts/AuthContext';
-import api from '../utils/api';
+import React, { useState, useEffect } from 'react';
+import { useAuth } from '../contexts/AuthContext';
+import { api } from '../utils/api';
 
 const Cash = () => {
-  const { user } = useContext(AuthContext);
+  const { user } = useAuth();
   const [cashStatus, setCashStatus] = useState(null);
   const [currentCash, setCurrentCash] = useState(null);
   const [cashHistory, setCashHistory] = useState([]);

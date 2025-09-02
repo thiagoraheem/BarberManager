@@ -2,30 +2,49 @@ import os
 import asyncio
 from typing import Optional
 from models import Appointment
-from utils.email_service import email_service, send_email_notification as async_send_email
 
-# Legacy sync wrapper for email notifications
+# Try to import advanced email service, fallback to basic if unavailable
+try:
+    from utils.email_service import email_service
+    async_send_email = None  # Will use email_service directly
+    ADVANCED_EMAIL_AVAILABLE = True
+except ImportError as e:
+    print(f"Advanced email service not available: {e}")
+    email_service = None
+    async_send_email = None
+    ADVANCED_EMAIL_AVAILABLE = False
+
 def send_email_notification(to_email: str, subject: str, body: str):
     """
-    Send email notification (with real SMTP support)
-    This is a sync wrapper around the async email service
+    Send email notification (with fallback to simulation)
     """
-    try:
-        # Try to send real email if configured
-        loop = asyncio.get_event_loop()
-        if loop.is_running():
-            # If already in async context, create a task
-            asyncio.create_task(async_send_email(to_email, subject, body))
-        else:
-            # If not in async context, run in new loop
-            asyncio.run(async_send_email(to_email, subject, body))
-    except Exception as e:
-        # Fallback to simulation if email fails
-        print(f"📧 EMAIL ENVIADO PARA: {to_email}")
-        print(f"ASSUNTO: {subject}")
-        print(f"CORPO: {body}")
-        print(f"⚠️ ERRO DE EMAIL: {e}")
-        print("-" * 50)
+    if ADVANCED_EMAIL_AVAILABLE and email_service:
+        try:
+            # Try to send real email if configured
+            loop = asyncio.get_event_loop()
+            if loop.is_running():
+                # If already in async context, create a task
+                asyncio.create_task(email_service.send_email(
+                    to_email=to_email,
+                    subject=subject,
+                    message=body
+                ))
+            else:
+                # If not in async context, run in new loop
+                asyncio.run(email_service.send_email(
+                    to_email=to_email,
+                    subject=subject,
+                    message=body
+                ))
+            return
+        except Exception as e:
+            print(f"⚠️ Erro ao enviar email real: {e}")
+    
+    # Fallback to simulation
+    print(f"📧 EMAIL ENVIADO PARA: {to_email}")
+    print(f"ASSUNTO: {subject}")
+    print(f"CORPO: {body}")
+    print("-" * 50)
 
 def send_sms_notification(phone: str, message: str):
     """
@@ -38,7 +57,7 @@ def send_sms_notification(phone: str, message: str):
 
 def send_appointment_notification(appointment: Appointment, action: str):
     """
-    Send notifications related to appointments using modern email service
+    Send notifications related to appointments
     """
     cliente = appointment.cliente
     barbeiro = appointment.barbeiro
@@ -48,20 +67,19 @@ def send_appointment_notification(appointment: Appointment, action: str):
     data_formatada = appointment.data_hora.strftime("%d/%m/%Y às %H:%M")
     
     try:
-        # Prepare appointment data for the email service
-        appointment_data = {
-            "cliente_email": cliente.email,
-            "cliente_nome": cliente.nome,
-            "data_hora_formatada": data_formatada,
-            "servico_nome": servico.nome,
-            "servico_preco": f"{servico.preco:.2f}",
-            "barbeiro_nome": barbeiro.nome,
-            "status": appointment.status.value.title() if hasattr(appointment.status, 'value') else str(appointment.status),
-            "observacoes": appointment.observacoes or ""
-        }
-        
-        # Send notification using async email service
-        if cliente.email:
+        # Try advanced email service if available
+        if ADVANCED_EMAIL_AVAILABLE and email_service and cliente.email:
+            appointment_data = {
+                "cliente_email": cliente.email,
+                "cliente_nome": cliente.nome,
+                "data_hora_formatada": data_formatada,
+                "servico_nome": servico.nome,
+                "servico_preco": f"{servico.preco:.2f}",
+                "barbeiro_nome": barbeiro.nome,
+                "status": appointment.status.value.title() if hasattr(appointment.status, 'value') else str(appointment.status),
+                "observacoes": appointment.observacoes or ""
+            }
+            
             try:
                 loop = asyncio.get_event_loop()
                 if loop.is_running():
@@ -77,9 +95,12 @@ def send_appointment_notification(appointment: Appointment, action: str):
                         )
                     )
             except Exception as e:
-                print(f"⚠️ Erro ao enviar email: {e}")
+                print(f"⚠️ Erro ao enviar email avançado: {e}")
                 # Fallback to legacy notification
                 _send_legacy_email_notification(appointment, action)
+        else:
+            # Use legacy notification
+            _send_legacy_email_notification(appointment, action)
         
         # Send SMS (still simulated)
         if cliente.telefone:
@@ -139,29 +160,41 @@ Em caso de dúvidas, entre em contato conosco.
 
 def send_daily_schedule_reminder(barbeiro_email: str, appointments_count: int):
     """
-    Send daily schedule reminder to barbers using modern email service
+    Send daily schedule reminder to barbers
     """
     try:
-        # Try to send with async email service
-        barbeiro_nome = barbeiro_email.split('@')[0].title()  # Extract name from email
-        
-        loop = asyncio.get_event_loop()
-        if loop.is_running():
-            asyncio.create_task(
-                email_service.send_daily_schedule_reminder(
-                    barbeiro_email=barbeiro_email,
-                    barbeiro_nome=barbeiro_nome,
-                    appointments_count=appointments_count
+        if ADVANCED_EMAIL_AVAILABLE and email_service:
+            # Try to send with async email service
+            barbeiro_nome = barbeiro_email.split('@')[0].title()  # Extract name from email
+            
+            loop = asyncio.get_event_loop()
+            if loop.is_running():
+                asyncio.create_task(
+                    email_service.send_daily_schedule_reminder(
+                        barbeiro_email=barbeiro_email,
+                        barbeiro_nome=barbeiro_nome,
+                        appointments_count=appointments_count
+                    )
                 )
-            )
+            else:
+                asyncio.run(
+                    email_service.send_daily_schedule_reminder(
+                        barbeiro_email=barbeiro_email,
+                        barbeiro_nome=barbeiro_nome,
+                        appointments_count=appointments_count
+                    )
+                )
         else:
-            asyncio.run(
-                email_service.send_daily_schedule_reminder(
-                    barbeiro_email=barbeiro_email,
-                    barbeiro_nome=barbeiro_nome,
-                    appointments_count=appointments_count
-                )
-            )
+            # Fallback to legacy notification
+            subject = "📅 Sua agenda de hoje"
+            body = f"""
+Bom dia!
+
+Você tem {appointments_count} agendamento(s) para hoje.
+
+Tenha um ótimo dia de trabalho!
+            """
+            send_email_notification(barbeiro_email, subject, body)
     except Exception as e:
         print(f"⚠️ Erro ao enviar lembrete diário: {e}")
         # Fallback to legacy notification
