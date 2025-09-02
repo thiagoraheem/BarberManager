@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { api } from '../utils/api';
-import { formatCurrency } from '../utils/formatters';
+import { formatCurrency, formatAppointmentTimeRange } from '../utils/formatters';
 
 const Dashboard = () => {
   const [stats, setStats] = useState({
@@ -172,10 +172,7 @@ const Dashboard = () => {
                           <td>
                             <small>
                               {new Date(appointment.data_hora).toLocaleDateString('pt-BR')}<br />
-                              {new Date(appointment.data_hora).toLocaleTimeString('pt-BR', { 
-                                hour: '2-digit', 
-                                minute: '2-digit' 
-                              })}
+                              {formatAppointmentTimeRange(appointment.data_hora, appointment.servico?.duracao_minutos)}
                             </small>
                           </td>
                           <td>

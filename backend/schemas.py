@@ -177,3 +177,30 @@ class DashboardStats(BaseModel):
     faturamento_mes: float
     clientes_total: int
     agendamentos_pendentes: int
+
+# Cash Register schemas
+class CashRegisterOpen(BaseModel):
+    valor_inicial: float = 0.0
+    observacoes_abertura: Optional[str] = None
+
+class CashRegisterClose(BaseModel):
+    valor_final: float
+    observacoes_fechamento: Optional[str] = None
+
+class CashRegister(BaseModel):
+    id: int
+    operador_id: int
+    data_abertura: datetime
+    data_fechamento: Optional[datetime] = None
+    valor_inicial: float
+    valor_final: Optional[float] = None
+    valor_vendas_dinheiro: float
+    valor_vendas_cartao: float
+    valor_vendas_pix: float
+    observacoes_abertura: Optional[str] = None
+    observacoes_fechamento: Optional[str] = None
+    status: str
+    criado_em: datetime
+    
+    class Config:
+        from_attributes = True

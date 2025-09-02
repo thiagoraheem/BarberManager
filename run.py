@@ -24,6 +24,10 @@ def run_command(command, cwd=None, env=None):
         print(f"❌ Erro ao executar comando: {command}")
         print(f"Código de saída: {e.returncode}")
         return None
+    except FileNotFoundError as e:
+        print(f"❌ Arquivo não encontrado ao executar: {command}")
+        print(f"Erro: {e}")
+        return None
 
 def check_python_version():
     """Verifica se a versão do Python é adequada"""
@@ -35,10 +39,17 @@ def check_python_version():
 def check_node_version():
     """Verifica se Node.js está instalado"""
     try:
-        result = subprocess.run(['node', '--version'], capture_output=True, text=True)
+        result = subprocess.run(['node', '--version'], capture_output=True, text=True, shell=True)
         if result.returncode == 0:
             print(f"✅ Node.js {result.stdout.strip()} detectado")
-            return True
+            # Verificar se npm também está disponível
+            npm_result = subprocess.run(['npm', '--version'], capture_output=True, text=True, shell=True)
+            if npm_result.returncode == 0:
+                print(f"✅ npm {npm_result.stdout.strip()} detectado")
+                return True
+            else:
+                print("❌ npm não encontrado")
+                return False
     except FileNotFoundError:
         pass
     
@@ -246,13 +257,35 @@ def start_frontend():
             print("❌ Falha ao instalar dependências do frontend")
             return None
     
+    # Verificar se package.json existe
+    package_json = frontend_dir / "package.json"
+    if not package_json.exists():
+        print("❌ package.json não encontrado no diretório frontend")
+        return None
+    
+    # Criar arquivo .env com a porta se não existir
+    env_file = frontend_dir / ".env"
+    if not env_file.exists():
+        with open(env_file, 'w') as f:
+            f.write("PORT=5000\n")
+        print("✅ Arquivo .env criado com PORT=5000")
+    
     # Iniciar servidor de desenvolvimento
     env = os.environ.copy()
     env['PORT'] = '5000'
     
-    return subprocess.Popen([
-        "npm", "start"
-    ], cwd=frontend_dir, env=env)
+    try:
+        # No Windows, usar shell=True e o comando como string
+        return subprocess.Popen(
+            "npm start",
+            cwd=frontend_dir, 
+            env=env, 
+            shell=True
+        )
+    except Exception as e:
+        print(f"❌ Erro ao executar npm start: {e}")
+        print("   Verifique se Node.js e npm estão instalados corretamente.")
+        return None
 
 def main():
     """Função principal"""
@@ -305,9 +338,19 @@ def main():
     # Verificar se Node.js está disponível para o frontend
     frontend_process = None
     if check_node_version():
-        frontend_process = start_frontend()
-        if frontend_process is None:
-            print("⚠️ Frontend não pôde ser iniciado, mas o backend está rodando")
+        try:
+            frontend_process = start_frontend()
+            if frontend_process is None:
+                print("⚠️ Frontend não pôde ser iniciado, mas o backend está rodando")
+                print("   Possíveis soluções:")
+                print("   1. Instale Node.js: https://nodejs.org/")
+                print("   2. Verifique se npm está no PATH do sistema")
+                print("   3. Execute manualmente: cd frontend && npm install && npm start")
+            else:
+                print("✅ Frontend iniciado com sucesso")
+        except Exception as e:
+            print(f"⚠️ Erro ao iniciar frontend: {e}")
+            print("   O backend continuará rodando...")
     else:
         print("⚠️ Node.js não encontrado. Apenas o backend será iniciado.")
         print("   Para usar o frontend, instale Node.js e execute: npm start no diretório frontend")

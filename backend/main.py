@@ -5,7 +5,7 @@ from contextlib import asynccontextmanager
 import uvicorn
 
 from database import engine, Base
-from routes import auth, users, clients, services, appointments, pos, dashboard
+from routes import auth, users, clients, services, appointments, pos, dashboard, cash
 
 # Create tables
 Base.metadata.create_all(bind=engine)
@@ -48,6 +48,7 @@ app.include_router(services.router, prefix="/api/services", tags=["Serviços"])
 app.include_router(appointments.router, prefix="/api/appointments", tags=["Agendamentos"])
 app.include_router(pos.router, prefix="/api/pos", tags=["Ponto de Venda"])
 app.include_router(dashboard.router, prefix="/api/dashboard", tags=["Dashboard"])
+app.include_router(cash.router, prefix="/api/cash", tags=["Caixa"])
 
 # Static files for frontend (must be last)
 # app.mount("/", StaticFiles(directory="../frontend/build", html=True), name="frontend")

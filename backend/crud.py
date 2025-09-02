@@ -142,7 +142,72 @@ def get_appointments(db: Session, skip: int = 0, limit: int = 100, date_filter=N
     
     return query.offset(skip).limit(limit).all()
 
+def check_appointment_conflict(db: Session, appointment: AppointmentCreate, exclude_id: int = None):
+    """
+    Verifica se há conflito de horário para um agendamento
+    Retorna informações do conflito se houver, ou None se não houver
+    """
+    from datetime import timedelta
+    
+    # Obter duração do serviço
+    service = get_service(db, appointment.servico_id)
+    if not service:
+        return None
+    
+    # Calcular horário de início e fim do novo agendamento
+    start_time = appointment.data_hora
+    end_time = start_time + timedelta(minutes=service.duracao_minutos)
+    
+    # Buscar agendamentos existentes do mesmo barbeiro no mesmo dia
+    from models import AppointmentStatus
+    query = db.query(Appointment).filter(
+        Appointment.barbeiro_id == appointment.barbeiro_id,
+        Appointment.data_hora.date() == start_time.date(),
+        Appointment.status.in_([
+            AppointmentStatus.AGENDADO,
+            AppointmentStatus.CONFIRMADO,
+            AppointmentStatus.EM_ANDAMENTO
+        ])
+    )
+    
+    # Excluir o próprio agendamento se for uma atualização
+    if exclude_id:
+        query = query.filter(Appointment.id != exclude_id)
+    
+    existing_appointments = query.all()
+    
+    # Verificar conflitos com cada agendamento existente
+    for existing in existing_appointments:
+        existing_service = existing.servico
+        existing_start = existing.data_hora
+        existing_end = existing_start + timedelta(minutes=existing_service.duracao_minutos)
+        
+        # Verificar sobreposição de horários
+        # Há conflito se:
+        # - O novo agendamento começa antes do existente terminar E
+        # - O novo agendamento termina depois do existente começar
+        if start_time < existing_end and end_time > existing_start:
+            return {
+                'barbeiro_nome': existing.barbeiro.nome,
+                'data': existing_start.strftime('%d/%m/%Y'),
+                'inicio': existing_start.strftime('%H:%M'),
+                'fim': existing_end.strftime('%H:%M'),
+                'servico': existing_service.nome,
+                'cliente': existing.cliente.nome
+            }
+    
+    return None
+
 def create_appointment(db: Session, appointment: AppointmentCreate):
+    # Verificar conflitos de agendamento
+    conflict = check_appointment_conflict(db, appointment)
+    if conflict:
+        from fastapi import HTTPException
+        raise HTTPException(
+            status_code=400, 
+            detail=f"Conflito de agendamento detectado. Já existe um agendamento para o barbeiro {conflict['barbeiro_nome']} das {conflict['inicio']} às {conflict['fim']} no dia {conflict['data']}."
+        )
+    
     db_appointment = Appointment(**appointment.dict())
     db.add(db_appointment)
     db.commit()
@@ -155,6 +220,27 @@ def update_appointment(db: Session, appointment_id: int, appointment_update):
         return None
     
     update_data = appointment_update.dict(exclude_unset=True)
+    
+    # Se está alterando data/hora, barbeiro ou serviço, verificar conflitos
+    if any(field in update_data for field in ['data_hora', 'barbeiro_id', 'servico_id']):
+        # Criar objeto temporário com os dados atualizados para verificação
+        from schemas import AppointmentCreate
+        temp_appointment = AppointmentCreate(
+            cliente_id=update_data.get('cliente_id', db_appointment.cliente_id),
+            barbeiro_id=update_data.get('barbeiro_id', db_appointment.barbeiro_id),
+            servico_id=update_data.get('servico_id', db_appointment.servico_id),
+            data_hora=update_data.get('data_hora', db_appointment.data_hora),
+            status=update_data.get('status', db_appointment.status),
+            observacoes=update_data.get('observacoes', db_appointment.observacoes)
+        )
+        
+        conflict = check_appointment_conflict(db, temp_appointment, exclude_id=appointment_id)
+        if conflict:
+            from fastapi import HTTPException
+            raise HTTPException(
+                status_code=400, 
+                detail=f"Conflito de agendamento detectado. Já existe um agendamento para o barbeiro {conflict['barbeiro_nome']} das {conflict['inicio']} às {conflict['fim']} no dia {conflict['data']}."
+            )
     
     for key, value in update_data.items():
         setattr(db_appointment, key, value)
@@ -242,3 +328,98 @@ def get_dashboard_stats(db: Session):
         "agendamentos_pendentes": appointments_pending,
         "faturamento_mes": monthly_revenue
     }
+
+# Cash Register CRUD
+def get_current_cash_register(db: Session, operador_id: int):
+    """Obter caixa atual aberto do operador"""
+    from models import CashRegister
+    return db.query(CashRegister).filter(
+        CashRegister.operador_id == operador_id,
+        CashRegister.status == "aberto"
+    ).first()
+
+def open_cash_register(db: Session, cash_data, operador_id: int):
+    """Abrir caixa"""
+    from models import CashRegister
+    from datetime import datetime
+    
+    # Verificar se já existe caixa aberto
+    existing = get_current_cash_register(db, operador_id)
+    if existing:
+        from fastapi import HTTPException
+        raise HTTPException(
+            status_code=400,
+            detail="Já existe um caixa aberto para este operador. Feche o caixa atual antes de abrir um novo."
+        )
+    
+    db_cash = CashRegister(
+        operador_id=operador_id,
+        data_abertura=datetime.now(),
+        valor_inicial=cash_data.valor_inicial,
+        observacoes_abertura=cash_data.observacoes_abertura,
+        status="aberto"
+    )
+    
+    db.add(db_cash)
+    db.commit()
+    db.refresh(db_cash)
+    return db_cash
+
+def close_cash_register(db: Session, cash_register_id: int, close_data):
+    """Fechar caixa"""
+    from models import CashRegister, PaymentMethod
+    from datetime import datetime, date
+    from sqlalchemy import func
+    
+    cash_register = db.query(CashRegister).filter(CashRegister.id == cash_register_id).first()
+    if not cash_register:
+        from fastapi import HTTPException
+        raise HTTPException(status_code=404, detail="Caixa não encontrado")
+    
+    if cash_register.status == "fechado":
+        from fastapi import HTTPException
+        raise HTTPException(status_code=400, detail="Caixa já está fechado")
+    
+    # Calcular valores das vendas por método de pagamento
+    today = date.today()
+    vendas_query = db.query(Sale).filter(
+        func.date(Sale.criado_em) == today
+    )
+    
+    valor_dinheiro = vendas_query.filter(
+        Sale.metodo_pagamento == PaymentMethod.DINHEIRO
+    ).with_entities(func.sum(Sale.total)).scalar() or 0.0
+    
+    valor_cartao = vendas_query.filter(
+        Sale.metodo_pagamento.in_([
+            PaymentMethod.CARTAO_DEBITO,
+            PaymentMethod.CARTAO_CREDITO
+        ])
+    ).with_entities(func.sum(Sale.total)).scalar() or 0.0
+    
+    valor_pix = vendas_query.filter(
+        Sale.metodo_pagamento == PaymentMethod.PIX
+    ).with_entities(func.sum(Sale.total)).scalar() or 0.0
+    
+    # Atualizar dados do fechamento
+    cash_register.data_fechamento = datetime.now()
+    cash_register.valor_final = close_data.valor_final
+    cash_register.observacoes_fechamento = close_data.observacoes_fechamento
+    cash_register.valor_vendas_dinheiro = valor_dinheiro
+    cash_register.valor_vendas_cartao = valor_cartao
+    cash_register.valor_vendas_pix = valor_pix
+    cash_register.status = "fechado"
+    
+    db.commit()
+    db.refresh(cash_register)
+    return cash_register
+
+def get_cash_registers(db: Session, skip: int = 0, limit: int = 100, operador_id: int = None):
+    """Listar caixas"""
+    from models import CashRegister
+    query = db.query(CashRegister)
+    
+    if operador_id:
+        query = query.filter(CashRegister.operador_id == operador_id)
+    
+    return query.offset(skip).limit(limit).all()

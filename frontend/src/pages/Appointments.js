@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { api } from '../utils/api';
-import { formatDate, formatTime } from '../utils/formatters';
+import { formatDate, formatTime, formatAppointmentTimeRange } from '../utils/formatters';
 
 const Appointments = () => {
   const [appointments, setAppointments] = useState([]);
@@ -280,7 +280,9 @@ const Appointments = () => {
                       <td>
                         <div>
                           <div>{formatDate(appointment.data_hora)}</div>
-                          <small className="text-muted">{formatTime(appointment.data_hora)}</small>
+                          <small className="text-muted">
+                            {formatAppointmentTimeRange(appointment.data_hora, appointment.servico?.duracao_minutos)}
+                          </small>
                         </div>
                       </td>
                       <td>

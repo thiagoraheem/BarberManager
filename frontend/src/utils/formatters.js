@@ -265,7 +265,7 @@ export const getColorFromString = (str) => {
   return colors[Math.abs(hash) % colors.length];
 };
 
-// Formatação de status para exibição
+// Formatar status para exibição
 export const formatStatus = (status) => {
   const statusMap = {
     agendado: 'Agendado',
@@ -279,6 +279,30 @@ export const formatStatus = (status) => {
   };
   
   return statusMap[status] || status;
+};
+
+// Calcular horário de fim do agendamento baseado na duração do serviço
+export const calculateAppointmentEndTime = (startTime, serviceDurationMinutes) => {
+  if (!startTime || !serviceDurationMinutes) return null;
+  
+  try {
+    const start = new Date(startTime);
+    const end = new Date(start.getTime() + (serviceDurationMinutes * 60000));
+    return end;
+  } catch (error) {
+    console.error('Erro ao calcular horário de fim:', error);
+    return null;
+  }
+};
+
+// Formatar intervalo de tempo do agendamento
+export const formatAppointmentTimeRange = (startTime, serviceDurationMinutes) => {
+  if (!startTime || !serviceDurationMinutes) return formatTime(startTime);
+  
+  const endTime = calculateAppointmentEndTime(startTime, serviceDurationMinutes);
+  if (!endTime) return formatTime(startTime);
+  
+  return `${formatTime(startTime)} - ${formatTime(endTime)}`;
 };
 
 export default {
@@ -301,5 +325,7 @@ export default {
   isValidPhone,
   getInitials,
   getColorFromString,
-  formatStatus
+  formatStatus,
+  calculateAppointmentEndTime,
+  formatAppointmentTimeRange
 };

@@ -125,3 +125,23 @@ class SaleItem(Base):
     # Relacionamentos
     venda = relationship("Sale", back_populates="itens")
     servico = relationship("Service", back_populates="itens_venda")
+
+class CashRegister(Base):
+    __tablename__ = "cash_registers"
+
+    id = Column(Integer, primary_key=True, index=True)
+    operador_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    data_abertura = Column(DateTime, nullable=False)
+    data_fechamento = Column(DateTime)
+    valor_inicial = Column(Float, default=0.0)
+    valor_final = Column(Float)
+    valor_vendas_dinheiro = Column(Float, default=0.0)
+    valor_vendas_cartao = Column(Float, default=0.0)
+    valor_vendas_pix = Column(Float, default=0.0)
+    observacoes_abertura = Column(Text)
+    observacoes_fechamento = Column(Text)
+    status = Column(String(20), default="aberto")  # aberto, fechado
+    criado_em = Column(DateTime(timezone=True), server_default=func.now())
+
+    # Relacionamentos
+    operador = relationship("User")
