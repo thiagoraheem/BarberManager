@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ subject }}</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .header {
+            text-align: center;
+            border-bottom: 2px solid #28a745;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            color: #28a745;
+        }
+        .appointment-details {
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            margin: 10px 0;
+            padding: 5px 0;
+            border-bottom: 1px solid #e9ecef;
+        }
+        .detail-label {
+            font-weight: bold;
+            color: #495057;
+        }
+        .detail-value {
+            color: #28a745;
+            font-weight: 500;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #e9ecef;
+            color: #6c757d;
+            font-size: 14px;
+        }
+        .btn {
+            display: inline-block;
+            padding: 12px 24px;
+            background-color: #28a745;
+            color: white !important;
+            text-decoration: none;
+            border-radius: 5px;
+            margin: 20px 0;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">✂️ BarberManager</div>
+            <p style="margin: 10px 0 0 0; color: #6c757d;">Sua barbearia digital</p>
+        </div>
+        
+        <h2 style="color: #28a745;">{{ title }}</h2>
+        
+        <p>Olá <strong>{{ cliente_nome }}</strong>!</p>
+        
+        <p>{{ message }}</p>
+        
+        <div class="appointment-details">
+            <h3 style="margin-top: 0; color: #495057;">📋 Detalhes do Agendamento</h3>
+            
+            <div class="detail-row">
+                <span class="detail-label">📅 Data/Hora:</span>
+                <span class="detail-value">{{ data_hora }}</span>
+            </div>
+            
+            <div class="detail-row">
+                <span class="detail-label">✂️ Serviço:</span>
+                <span class="detail-value">{{ servico_nome }}</span>
+            </div>
+            
+            <div class="detail-row">
+                <span class="detail-label">💰 Valor:</span>
+                <span class="detail-value">R$ {{ preco }}</span>
+            </div>
+            
+            <div class="detail-row">
+                <span class="detail-label">👨‍💼 Barbeiro:</span>
+                <span class="detail-value">{{ barbeiro_nome }}</span>
+            </div>
+            
+            {% if status %}
+            <div class="detail-row">
+                <span class="detail-label">📋 Status:</span>
+                <span class="detail-value">{{ status }}</span>
+            </div>
+            {% endif %}
+        </div>
+        
+        {% if observacoes %}
+        <div style="background-color: #fff3cd; border: 1px solid #ffeaa7; padding: 15px; border-radius: 5px; margin: 20px 0;">
+            <strong>📝 Observações:</strong><br>
+            {{ observacoes }}
+        </div>
+        {% endif %}
+        
+        <div style="text-align: center;">
+            <a href="#" class="btn">Confirmar Agendamento</a>
+        </div>
+        
+        <div class="footer">
+            <p><strong>Obrigado por escolher nossa barbearia!</strong></p>
+            <p>Em caso de dúvidas ou necessidade de reagendamento, entre em contato conosco.</p>
+            <p style="font-size: 12px; color: #868e96;">
+                Este é um email automático, por favor não responda.
+            </p>
+        </div>
+    </div>
+</body>
+</html>

@@ -12,6 +12,8 @@ const Sidebar = () => {
     { path: '/clientes', icon: 'fas fa-users', label: 'Clientes' },
     { path: '/servicos', icon: 'fas fa-cut', label: 'Serviços' },
     { path: '/pos', icon: 'fas fa-cash-register', label: 'Ponto de Venda' },
+    { path: '/caixa', icon: 'fas fa-money-bill-wave', label: 'Gestão de Caixa' },
+    { path: '/relatorios', icon: 'fas fa-chart-bar', label: 'Relatórios' },
     { path: '/configuracoes', icon: 'fas fa-cog', label: 'Configurações' }
   ];
 

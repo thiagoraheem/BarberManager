@@ -15,6 +15,8 @@ import Appointments from './pages/Appointments';
 import Clients from './pages/Clients';
 import Services from './pages/Services';
 import POS from './pages/POS';
+import Cash from './pages/Cash';
+import Reports from './pages/Reports';
 import Settings from './pages/Settings';
 
 function App() {
@@ -91,6 +93,22 @@ function App() {
                     element={
                       <PrivateRoute>
                         <POS />
+                      </PrivateRoute>
+                    } 
+                  />
+                  <Route 
+                    path="/caixa" 
+                    element={
+                      <PrivateRoute>
+                        <Cash />
+                      </PrivateRoute>
+                    } 
+                  />
+                  <Route 
+                    path="/relatorios" 
+                    element={
+                      <PrivateRoute>
+                        <Reports />
                       </PrivateRoute>
                     } 
                   />
