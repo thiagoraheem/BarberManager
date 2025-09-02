@@ -3,6 +3,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy import or_
 from models import User, Client, Service, Appointment, Sale, SaleItem
 from schemas import UserCreate, ClientCreate, ServiceCreate, AppointmentCreate, SaleCreate
+from utils.cache import cache_client_data, cache_service_data, invalidate_client_cache, invalidate_service_cache
 import bcrypt
 from datetime import datetime
 
@@ -60,6 +61,7 @@ def get_client(db: Session, client_id: int):
 def get_client_by_email(db: Session, email: str):
     return db.query(Client).filter(Client.email == email).first()
 
+@cache_client_data(ttl=300)
 def get_clients(db: Session, skip: int = 0, limit: int = 100, search: str = None):
     query = db.query(Client)
     if search:
@@ -80,6 +82,10 @@ def create_client(db: Session, client: ClientCreate):
     db.add(db_client)
     db.commit()
     db.refresh(db_client)
+    
+    # Invalidate client cache
+    invalidate_client_cache()
+    
     return db_client
 
 def update_client(db: Session, client_id: int, client_update):
@@ -100,6 +106,7 @@ def update_client(db: Session, client_id: int, client_update):
 def get_service(db: Session, service_id: int):
     return db.query(Service).filter(Service.id == service_id).first()
 
+@cache_service_data(ttl=600)
 def get_services(db: Session, skip: int = 0, limit: int = 100, active_only: bool = True):
     query = db.query(Service)
     if active_only:
@@ -111,6 +118,10 @@ def create_service(db: Session, service: ServiceCreate):
     db.add(db_service)
     db.commit()
     db.refresh(db_service)
+    
+    # Invalidate service cache
+    invalidate_service_cache()
+    
     return db_service
 
 def update_service(db: Session, service_id: int, service_update):

@@ -6,6 +6,7 @@ from database import get_db
 from schemas import DashboardStats
 from crud import get_dashboard_stats
 from auth import get_current_active_user
+from utils.cache import cache_dashboard_stats
 from models import User
 
 router = APIRouter()
@@ -19,6 +20,7 @@ async def read_dashboard_stats(
     return get_dashboard_stats(db)
 
 @router.get("/recent-activities")
+@cache_dashboard_stats(ttl=120)  # Cache for 2 minutes
 async def get_recent_activities(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_active_user)
