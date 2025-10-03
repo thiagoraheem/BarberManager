@@ -1,16 +1,23 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import './Login.css';
 
 const Login = () => {
   const [formData, setFormData] = useState({
     email: '',
-    password: '' // Campo de senha alterado para 'password'
+    password: ''
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [isVisible, setIsVisible] = useState(false);
   const { login } = useAuth();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    setIsVisible(true);
+  }, []);
 
   const handleChange = (e) => {
     setFormData({
@@ -60,155 +67,216 @@ const Login = () => {
 
 
   return (
-    <div className="min-vh-100 d-flex">
-      {/* Lado esquerdo - Imagem/Info */}
-      <div
-        className="col-md-6 d-none d-md-flex flex-column justify-content-center align-items-center text-white position-relative"
-        style={{
-          background: 'linear-gradient(135deg, var(--primary), var(--accent))',
-          backgroundImage: `url('https://pixabay.com/get/g6db67f61c55b6849b63e3fa1ef5408e5a7ebeb434739edd2789179736ad24e40c8a89cbc1679023b6c2e67889285f68e589701639be13b91fe50ba54bcaa0263_1280.jpg')`,
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-          backgroundBlendMode: 'overlay'
-        }}
-      >
-        <div className="text-center p-5">
-          <div className="mb-4">
-            <i className="fas fa-cut fa-4x mb-3"></i>
-          </div>
-          <h1 className="display-4 fw-bold mb-3">BarberShop</h1>
-          <h4 className="mb-4">Sistema de Gestão Profissional</h4>
-          <p className="lead mb-4">
-            Gerencie agendamentos, clientes e vendas de forma simples e eficiente.
-          </p>
-          <div className="row text-center">
-            <div className="col-4">
-              <i className="fas fa-calendar-check fa-2x mb-2"></i>
-              <p>Agendamentos</p>
-            </div>
-            <div className="col-4">
-              <i className="fas fa-users fa-2x mb-2"></i>
-              <p>Clientes</p>
-            </div>
-            <div className="col-4">
-              <i className="fas fa-chart-line fa-2x mb-2"></i>
-              <p>Relatórios</p>
-            </div>
-          </div>
+    <div className="login-container">
+      {/* Background com animação */}
+      <div className="login-background">
+        <div className="floating-shapes">
+          <div className="shape shape-1"></div>
+          <div className="shape shape-2"></div>
+          <div className="shape shape-3"></div>
+          <div className="shape shape-4"></div>
+          <div className="shape shape-5"></div>
         </div>
       </div>
 
-      {/* Lado direito - Formulário */}
-      <div className="col-md-6 d-flex flex-column justify-content-center p-5">
-        <div className="mx-auto" style={{ maxWidth: '400px', width: '100%' }}>
-          {/* Logo mobile */}
-          <div className="text-center mb-4 d-md-none">
-            <i className="fas fa-cut fa-3x text-primary mb-2"></i>
-            <h2 className="fw-bold">BarberShop</h2>
-          </div>
-
-          <div className="card shadow-lg border-0">
-            <div className="card-body p-4">
-              <h3 className="card-title text-center mb-4 fw-bold">
-                Fazer Login
-              </h3>
-
-              {/* Exibição de erro corrigida para mostrar string ou mensagem genérica */}
-              {error && (
-                <div className="alert alert-danger d-flex align-items-center" role="alert">
-                  <i className="fas fa-exclamation-triangle me-2"></i>
-                  {typeof error === 'string' ? error : 'Erro no login'}
-                </div>
-              )}
-
-              <form onSubmit={handleSubmit}>
-                <div className="mb-3">
-                  <label htmlFor="email" className="form-label">
-                    <i className="fas fa-envelope me-2"></i>
-                    Email
-                  </label>
-                  <input
-                    type="email"
-                    className="form-control"
-                    id="email"
-                    name="email"
-                    value={formData.email}
-                    onChange={handleChange}
-                    required
-                    placeholder="seu@email.com"
-                    autoComplete="email"
-                  />
+      {/* Container principal */}
+      <div className={`login-content ${isVisible ? 'visible' : ''}`}>
+        <div className="row min-vh-100 g-0">
+          
+          {/* Lado esquerdo - Branding */}
+          <div className="col-lg-6 d-none d-lg-flex">
+            <div className="brand-section">
+              <div className="brand-content">
+                <div className="brand-logo">
+                  <div className="logo-icon">
+                    <svg width="80" height="80" viewBox="0 0 100 100" fill="none">
+                      <circle cx="50" cy="50" r="45" fill="url(#gradient1)" />
+                      <path d="M30 40 L70 40 M35 50 L65 50 M40 60 L60 60" stroke="white" strokeWidth="3" strokeLinecap="round" />
+                      <defs>
+                        <linearGradient id="gradient1" x1="0%" y1="0%" x2="100%" y2="100%">
+                          <stop offset="0%" stopColor="#667eea" />
+                          <stop offset="100%" stopColor="#764ba2" />
+                        </linearGradient>
+                      </defs>
+                    </svg>
+                  </div>
+                  <h1 className="brand-title">BarberManager</h1>
+                  <p className="brand-subtitle">Sistema de Gestão Profissional</p>
                 </div>
 
-                <div className="mb-4">
-                  <label htmlFor="password" className="form-label"> {/* Label atualizada para 'password' */}
-                    <i className="fas fa-lock me-2"></i>
-                    Senha
-                  </label>
-                  <input
-                    type="password"
-                    className="form-control"
-                    id="password" // ID atualizado para 'password'
-                    name="password" // Nome do campo atualizado para 'password'
-                    value={formData.password} // Valor do campo atualizado para 'password'
-                    onChange={handleChange}
-                    required
-                    placeholder="••••••••"
-                    autoComplete="current-password"
-                  />
+                <div className="features-grid">
+                  <div className="feature-item">
+                    <div className="feature-icon">
+                      <i className="fas fa-calendar-check"></i>
+                    </div>
+                    <h3>Agendamentos</h3>
+                    <p>Controle total da sua agenda</p>
+                  </div>
+                  <div className="feature-item">
+                    <div className="feature-icon">
+                      <i className="fas fa-users"></i>
+                    </div>
+                    <h3>Clientes</h3>
+                    <p>Gestão completa de clientes</p>
+                  </div>
+                  <div className="feature-item">
+                    <div className="feature-icon">
+                      <i className="fas fa-chart-line"></i>
+                    </div>
+                    <h3>Relatórios</h3>
+                    <p>Análises e métricas detalhadas</p>
+                  </div>
+                  <div className="feature-item">
+                    <div className="feature-icon">
+                      <i className="fas fa-cash-register"></i>
+                    </div>
+                    <h3>Vendas</h3>
+                    <p>PDV integrado e eficiente</p>
+                  </div>
                 </div>
 
-                <button
-                  type="submit"
-                  className="btn btn-primary w-100 py-2 fw-semibold"
-                  disabled={loading}
-                >
-                  {loading ? (
-                    <>
-                      <span className="spinner-border spinner-border-sm me-2" role="status">
-                        <span className="visually-hidden">Carregando...</span>
-                      </span>
-                      Entrando...
-                    </>
-                  ) : (
-                    <>
-                      <i className="fas fa-sign-in-alt me-2"></i>
-                      Entrar
-                    </>
-                  )}
-                </button>
-              </form>
-
-              <hr className="my-4" />
-
-              <div className="text-center text-muted">
-                <small>
-                  <i className="fas fa-shield-alt me-1"></i>
-                  Sistema seguro e confiável
-                </small>
+                <div className="testimonial">
+                  <blockquote>
+                    "Revolucionou a forma como gerencio minha barbearia. Simples, eficiente e completo!"
+                  </blockquote>
+                  <cite>— João Silva, Barbearia Premium</cite>
+                </div>
               </div>
             </div>
           </div>
 
-          {/* Informações adicionais */}
-          <div className="text-center mt-4">
-            <small className="text-muted">
-              Desenvolvido com ❤️ para barbearias modernas
-            </small>
-          </div>
+          {/* Lado direito - Formulário */}
+          <div className="col-lg-6 d-flex align-items-center justify-content-center">
+            <div className="form-section">
+              
+              {/* Logo mobile */}
+              <div className="mobile-logo d-lg-none">
+                <div className="logo-icon-small">
+                  <svg width="50" height="50" viewBox="0 0 100 100" fill="none">
+                    <circle cx="50" cy="50" r="45" fill="url(#gradient2)" />
+                    <path d="M30 40 L70 40 M35 50 L65 50 M40 60 L60 60" stroke="white" strokeWidth="3" strokeLinecap="round" />
+                    <defs>
+                      <linearGradient id="gradient2" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stopColor="#667eea" />
+                        <stop offset="100%" stopColor="#764ba2" />
+                      </linearGradient>
+                    </defs>
+                  </svg>
+                </div>
+                <h2>BarberManager</h2>
+              </div>
 
-          {/* Demo credentials */}
-          <div className="mt-4">
-            <div className="card bg-light">
-              <div className="card-body p-3">
-                <h6 className="card-title mb-2">
-                  <i className="fas fa-info-circle me-2"></i>
-                  Credenciais de Demonstração
-                </h6>
-                <small className="text-muted">
-                  <strong>Admin:</strong> admin@barbearia.com / admin123<br />
-                  <strong>Barbeiro:</strong> barbeiro@barbearia.com / barbeiro123
-                </small>
+              {/* Formulário de login */}
+              <div className="login-form">
+                <div className="form-header">
+                  <h3>Bem-vindo de volta!</h3>
+                  <p>Entre com suas credenciais para acessar o sistema</p>
+                </div>
+
+                {error && (
+                  <div className="alert alert-danger custom-alert">
+                    <i className="fas fa-exclamation-triangle"></i>
+                    <span>{typeof error === 'string' ? error : 'Erro no login'}</span>
+                  </div>
+                )}
+
+                <form onSubmit={handleSubmit} className="needs-validation" noValidate>
+                  <div className="form-group">
+                    <label htmlFor="email" className="form-label">
+                      <i className="fas fa-envelope"></i>
+                      Email
+                    </label>
+                    <div className="input-wrapper">
+                      <input
+                        type="email"
+                        className="form-control modern-input"
+                        id="email"
+                        name="email"
+                        value={formData.email}
+                        onChange={handleChange}
+                        required
+                        placeholder="seu@email.com"
+                        autoComplete="email"
+                      />
+                      <div className="input-focus-border"></div>
+                    </div>
+                  </div>
+
+                  <div className="form-group">
+                    <label htmlFor="password" className="form-label">
+                      <i className="fas fa-lock"></i>
+                      Senha
+                    </label>
+                    <div className="input-wrapper password-wrapper">
+                      <input
+                        type={showPassword ? "text" : "password"}
+                        className="form-control modern-input"
+                        id="password"
+                        name="password"
+                        value={formData.password}
+                        onChange={handleChange}
+                        required
+                        placeholder="••••••••"
+                        autoComplete="current-password"
+                      />
+                      <button
+                        type="button"
+                        className="password-toggle"
+                        onClick={() => setShowPassword(!showPassword)}
+                      >
+                        <i className={`fas ${showPassword ? 'fa-eye-slash' : 'fa-eye'}`}></i>
+                      </button>
+                      <div className="input-focus-border"></div>
+                    </div>
+                  </div>
+
+                  <button
+                    type="submit"
+                    className="btn btn-primary modern-btn w-100"
+                    disabled={loading}
+                  >
+                    {loading ? (
+                      <>
+                        <div className="spinner"></div>
+                        <span>Entrando...</span>
+                      </>
+                    ) : (
+                      <>
+                        <i className="fas fa-sign-in-alt"></i>
+                        <span>Entrar no Sistema</span>
+                      </>
+                    )}
+                  </button>
+                </form>
+
+                {/* Credenciais de demonstração */}
+                <div className="demo-credentials">
+                  <div className="demo-header">
+                    <i className="fas fa-info-circle"></i>
+                    <span>Credenciais de Demonstração</span>
+                  </div>
+                  <div className="demo-list">
+                    <div className="demo-item">
+                      <strong>Administrador:</strong>
+                      <span>admin@barbearia.com / admin123</span>
+                    </div>
+                    <div className="demo-item">
+                      <strong>Barbeiro:</strong>
+                      <span>barbeiro@barbearia.com / barbeiro123</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Footer */}
+                <div className="login-footer">
+                  <div className="security-badge">
+                    <i className="fas fa-shield-alt"></i>
+                    <span>Conexão segura e criptografada</span>
+                  </div>
+                  <div className="copyright">
+                    <small>© 2025 BarberManager. Desenvolvido com ❤️ para barbearias modernas.</small>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
