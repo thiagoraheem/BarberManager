@@ -36,15 +36,15 @@ const Dashboard = () => {
   };
 
   const StatCard = ({ title, value, icon, color, subtitle }) => (
-    <div className={`stat-card ${color}`}>
-      <div className="d-flex justify-content-between align-items-start">
+    <div className={`stat-card ${color} slide-in-up`}>
+      <div className="d-flex justify-between align-start">
         <div>
-          <h6 className="mb-1 opacity-75">{title}</h6>
-          <h2 className="mb-1 fw-bold">{value}</h2>
-          {subtitle && <small className="opacity-75">{subtitle}</small>}
+          <h6 className="mb-1 text-light">{title}</h6>
+          <h2 className="mb-1 text-bold text-white">{value}</h2>
+          {subtitle && <small className="text-light">{subtitle}</small>}
         </div>
-        <div className="opacity-75">
-          <i className={`${icon} fa-2x`}></i>
+        <div className="text-light opacity-75">
+          <i className={`${icon} text-xl`}></i>
         </div>
       </div>
     </div>
@@ -53,12 +53,10 @@ const Dashboard = () => {
   if (loading) {
     return (
       <div className="container-fluid">
-        <div className="d-flex justify-content-center align-items-center" style={{ minHeight: '400px' }}>
-          <div className="text-center">
-            <div className="spinner-border text-primary mb-3" role="status">
-              <span className="visually-hidden">Carregando...</span>
-            </div>
-            <h5>Carregando dashboard...</h5>
+        <div className="d-flex justify-center align-center" style={{ minHeight: '400px' }}>
+          <div className="main-card text-center">
+            <div className="spinner mb-3"></div>
+            <h5 className="text-dark">Carregando dashboard...</h5>
           </div>
         </div>
       </div>
@@ -70,17 +68,17 @@ const Dashboard = () => {
       {/* Cabeçalho */}
       <div className="row mb-4">
         <div className="col-12">
-          <div className="d-flex justify-content-between align-items-center">
+          <div className="d-flex justify-between align-center">
             <div>
-              <h1 className="h3 mb-1 fw-bold">📊 Dashboard</h1>
-              <p className="text-muted mb-0">Visão geral do seu negócio</p>
+              <h1 className="text-2xl mb-1 text-bold text-dark">📊 Dashboard</h1>
+              <p className="text-light mb-0">Visão geral do seu negócio</p>
             </div>
             <button 
-              className="btn btn-primary"
+              className="modern-btn-primary"
               onClick={loadDashboardData}
               title="Atualizar dados"
             >
-              <i className="fas fa-sync-alt me-2"></i>
+              <i className="fas fa-sync-alt mr-2"></i>
               Atualizar
             </button>
           </div>
@@ -94,7 +92,7 @@ const Dashboard = () => {
             title="Agendamentos Hoje"
             value={stats.agendamentos_hoje}
             icon="fas fa-calendar-day"
-            color=""
+            color="primary"
             subtitle="agendamentos"
           />
         </div>
@@ -130,58 +128,58 @@ const Dashboard = () => {
       <div className="row">
         {/* Agendamentos recentes */}
         <div className="col-lg-8 mb-4">
-          <div className="card">
-            <div className="card-header d-flex justify-content-between align-items-center">
-              <h5 className="mb-0">
-                <i className="fas fa-calendar-alt me-2"></i>
+          <div className="main-card slide-in-up">
+            <div className="card-header d-flex justify-between align-center p-4 border-b border-white-border">
+              <h5 className="mb-0 text-dark text-semibold">
+                <i className="fas fa-calendar-alt mr-2 text-primary"></i>
                 Próximos Agendamentos
               </h5>
-              <a href="/agendamentos" className="btn btn-sm btn-outline-primary">
+              <a href="/agendamentos" className="modern-btn-outline">
                 Ver Todos
               </a>
             </div>
-            <div className="card-body">
+            <div className="p-4">
               {recentAppointments.length > 0 ? (
-                <div className="table-responsive">
-                  <table className="table table-hover">
+                <div className="modern-table-container">
+                  <table className="modern-table">
                     <thead>
                       <tr>
-                        <th>Cliente</th>
-                        <th>Serviço</th>
-                        <th>Data/Hora</th>
-                        <th>Status</th>
+                        <th className="text-dark text-semibold">Cliente</th>
+                        <th className="text-dark text-semibold">Serviço</th>
+                        <th className="text-dark text-semibold">Data/Hora</th>
+                        <th className="text-dark text-semibold">Status</th>
                       </tr>
                     </thead>
                     <tbody>
                       {recentAppointments.map((appointment) => (
-                        <tr key={appointment.id}>
+                        <tr key={appointment.id} className="hover-lift transition">
                           <td>
-                            <div className="d-flex align-items-center">
-                              <div className="avatar me-2">
+                            <div className="d-flex align-center">
+                              <div className="mr-3">
                                 <div 
-                                  className="rounded-circle bg-primary d-flex align-items-center justify-content-center text-white"
+                                  className="rounded-full bg-primary d-flex align-center justify-center text-white text-semibold"
                                   style={{ width: '35px', height: '35px', fontSize: '14px' }}
                                 >
                                   {appointment.cliente?.nome?.charAt(0)?.toUpperCase()}
                                 </div>
                               </div>
-                              <span className="fw-semibold">{appointment.cliente?.nome}</span>
+                              <span className="text-semibold text-dark">{appointment.cliente?.nome}</span>
                             </div>
                           </td>
-                          <td>{appointment.servico?.nome}</td>
+                          <td className="text-dark">{appointment.servico?.nome}</td>
                           <td>
-                            <small>
+                            <small className="text-light">
                               {new Date(appointment.data_hora).toLocaleDateString('pt-BR')}<br />
                               {formatAppointmentTimeRange(appointment.data_hora, appointment.servico?.duracao_minutos)}
                             </small>
                           </td>
                           <td>
-                            <span className={`badge ${
-                              appointment.status === 'agendado' ? 'bg-info' :
-                              appointment.status === 'confirmado' ? 'bg-success' :
-                              appointment.status === 'em_andamento' ? 'bg-warning' :
-                              appointment.status === 'concluido' ? 'bg-primary' :
-                              'bg-danger'
+                            <span className={`badge px-2 py-1 rounded text-xs text-semibold ${
+                              appointment.status === 'agendado' ? 'bg-info text-white' :
+                              appointment.status === 'confirmado' ? 'bg-success text-white' :
+                              appointment.status === 'em_andamento' ? 'bg-warning text-dark' :
+                              appointment.status === 'concluido' ? 'bg-primary text-white' :
+                              'bg-error text-white'
                             }`}>
                               {appointment.status?.replace('_', ' ').toUpperCase()}
                             </span>
@@ -192,10 +190,10 @@ const Dashboard = () => {
                   </table>
                 </div>
               ) : (
-                <div className="text-center py-4">
-                  <i className="fas fa-calendar-times fa-3x text-muted mb-3"></i>
-                  <h5 className="text-muted">Nenhum agendamento encontrado</h5>
-                  <p className="text-muted">Os próximos agendamentos aparecerão aqui.</p>
+                <div className="text-center py-8">
+                  <i className="fas fa-calendar-times text-4xl text-light mb-3"></i>
+                  <h5 className="text-light mb-2">Nenhum agendamento encontrado</h5>
+                  <p className="text-light">Os próximos agendamentos aparecerão aqui.</p>
                 </div>
               )}
             </div>
@@ -204,29 +202,29 @@ const Dashboard = () => {
 
         {/* Ações rápidas */}
         <div className="col-lg-4 mb-4">
-          <div className="card">
-            <div className="card-header">
-              <h5 className="mb-0">
-                <i className="fas fa-bolt me-2"></i>
+          <div className="main-card slide-in-up">
+            <div className="card-header p-4 border-b border-white-border">
+              <h5 className="mb-0 text-dark text-semibold">
+                <i className="fas fa-bolt mr-2 text-primary"></i>
                 Ações Rápidas
               </h5>
             </div>
-            <div className="card-body">
-              <div className="d-grid gap-2">
-                <a href="/agendamentos" className="btn btn-outline-primary">
-                  <i className="fas fa-plus me-2"></i>
+            <div className="p-4">
+              <div className="space-y-3">
+                <a href="/agendamentos" className="modern-btn-outline w-full d-flex align-center justify-center hover-lift transition">
+                  <i className="fas fa-plus mr-2"></i>
                   Novo Agendamento
                 </a>
-                <a href="/clientes" className="btn btn-outline-success">
-                  <i className="fas fa-user-plus me-2"></i>
+                <a href="/clientes" className="modern-btn-secondary w-full d-flex align-center justify-center hover-lift transition">
+                  <i className="fas fa-user-plus mr-2"></i>
                   Cadastrar Cliente
                 </a>
-                <a href="/pos" className="btn btn-outline-warning">
-                  <i className="fas fa-cash-register me-2"></i>
+                <a href="/pos" className="modern-btn-outline w-full d-flex align-center justify-center hover-lift transition">
+                  <i className="fas fa-cash-register mr-2"></i>
                   Abrir POS
                 </a>
-                <a href="/servicos" className="btn btn-outline-info">
-                  <i className="fas fa-cut me-2"></i>
+                <a href="/servicos" className="modern-btn-outline w-full d-flex align-center justify-center hover-lift transition">
+                  <i className="fas fa-cut mr-2"></i>
                   Gerenciar Serviços
                 </a>
               </div>
@@ -234,26 +232,28 @@ const Dashboard = () => {
           </div>
 
           {/* Informações do sistema */}
-          <div className="card mt-3">
-            <div className="card-header">
-              <h6 className="mb-0">
-                <i className="fas fa-info-circle me-2"></i>
+          <div className="main-card mt-4 slide-in-up">
+            <div className="card-header p-4 border-b border-white-border">
+              <h6 className="mb-0 text-dark text-semibold">
+                <i className="fas fa-info-circle mr-2 text-primary"></i>
                 Informações do Sistema
               </h6>
             </div>
-            <div className="card-body">
-              <small className="text-muted">
-                <div className="mb-2">
-                  <strong>Versão:</strong> 1.0.0
+            <div className="p-4">
+              <div className="space-y-2">
+                <div className="d-flex justify-between">
+                  <span className="text-light text-semibold">Versão:</span>
+                  <span className="text-dark">1.0.0</span>
                 </div>
-                <div className="mb-2">
-                  <strong>Última atualização:</strong> Hoje
+                <div className="d-flex justify-between">
+                  <span className="text-light text-semibold">Última atualização:</span>
+                  <span className="text-dark">Hoje</span>
                 </div>
-                <div>
-                  <strong>Status:</strong> 
-                  <span className="badge bg-success ms-1">Online</span>
+                <div className="d-flex justify-between align-center">
+                  <span className="text-light text-semibold">Status:</span>
+                  <span className="badge bg-success text-white px-2 py-1 rounded text-xs">Online</span>
                 </div>
-              </small>
+              </div>
             </div>
           </div>
         </div>

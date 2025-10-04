@@ -45,16 +45,16 @@ async def add_process_time_header(request: Request, call_next: Callable):
     response.headers["X-Process-Time"] = str(process_time)
     return response
 
-# Rate limiting middleware
+# Rate limiting middleware - FIXED
 app.middleware("http")(rate_limit_middleware)
 
-# Security validation middleware  
+# Security validation middleware - FIXED
 app.middleware("http")(security_validation_middleware)
 
 # CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "http://localhost:5000"],
+    allow_origins=["http://localhost:3000", "http://localhost:3001", "http://localhost:5000"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

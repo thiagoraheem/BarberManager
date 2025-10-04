@@ -135,7 +135,7 @@ const Appointments = () => {
       confirmado: 'success',
       em_andamento: 'warning',
       concluido: 'primary',
-      cancelado: 'danger'
+      cancelado: 'error'
     };
     return colors[status] || 'secondary';
   };
@@ -156,16 +156,16 @@ const Appointments = () => {
       {/* Cabeçalho */}
       <div className="row mb-4">
         <div className="col-12">
-          <div className="d-flex justify-content-between align-items-center">
+          <div className="d-flex justify-between align-center">
             <div>
-              <h1 className="h3 mb-1 fw-bold">📅 Agendamentos</h1>
-              <p className="text-muted mb-0">Gerencie os agendamentos da barbearia</p>
+              <h1 className="text-2xl mb-1 text-bold text-dark">📅 Agendamentos</h1>
+              <p className="text-light mb-0">Gerencie os agendamentos da barbearia</p>
             </div>
             <button 
-              className="btn btn-primary"
+              className="modern-btn-primary"
               onClick={openNewAppointmentModal}
             >
-              <i className="fas fa-plus me-2"></i>
+              <i className="fas fa-plus mr-2"></i>
               Novo Agendamento
             </button>
           </div>
@@ -173,22 +173,22 @@ const Appointments = () => {
       </div>
 
       {/* Filtros */}
-      <div className="card mb-4">
-        <div className="card-body">
+      <div className="main-card mb-4 slide-in-up">
+        <div className="p-4">
           <div className="row g-3">
             <div className="col-md-3">
-              <label className="form-label">Data</label>
+              <label className="form-label text-dark text-semibold">Data</label>
               <input
                 type="date"
-                className="form-control"
+                className="modern-input"
                 value={filters.date}
                 onChange={(e) => setFilters({...filters, date: e.target.value})}
               />
             </div>
             <div className="col-md-3">
-              <label className="form-label">Barbeiro</label>
+              <label className="form-label text-dark text-semibold">Barbeiro</label>
               <select
-                className="form-select"
+                className="modern-input"
                 value={filters.barbeiro_id}
                 onChange={(e) => setFilters({...filters, barbeiro_id: e.target.value})}
               >
@@ -199,9 +199,9 @@ const Appointments = () => {
               </select>
             </div>
             <div className="col-md-3">
-              <label className="form-label">Status</label>
+              <label className="form-label text-dark text-semibold">Status</label>
               <select
-                className="form-select"
+                className="modern-input"
                 value={filters.status}
                 onChange={(e) => setFilters({...filters, status: e.target.value})}
               >
@@ -213,12 +213,12 @@ const Appointments = () => {
                 <option value="cancelado">Cancelado</option>
               </select>
             </div>
-            <div className="col-md-3 d-flex align-items-end">
+            <div className="col-md-3 d-flex align-end">
               <button 
-                className="btn btn-outline-primary w-100"
+                className="modern-btn-outline w-full hover-lift transition"
                 onClick={loadAppointments}
               >
-                <i className="fas fa-search me-2"></i>
+                <i className="fas fa-search mr-2"></i>
                 Filtrar
               </button>
             </div>
@@ -227,60 +227,60 @@ const Appointments = () => {
       </div>
 
       {/* Lista de Agendamentos */}
-      <div className="card">
-        <div className="card-header d-flex justify-content-between align-items-center">
-          <h5 className="mb-0">Lista de Agendamentos</h5>
-          <span className="badge bg-primary">{appointments.length} agendamentos</span>
+      <div className="main-card slide-in-up">
+        <div className="card-header d-flex justify-between align-center p-4 border-b border-white-border">
+          <h5 className="mb-0 text-dark text-semibold">Lista de Agendamentos</h5>
+          <span className="badge bg-primary text-white px-3 py-1 rounded text-sm">{appointments.length} agendamentos</span>
         </div>
-        <div className="card-body">
+        <div className="p-4">
           {loading ? (
-            <div className="text-center py-4">
-              <div className="spinner-border text-primary mb-3"></div>
-              <p>Carregando agendamentos...</p>
+            <div className="text-center py-8">
+              <div className="spinner mb-3"></div>
+              <p className="text-dark">Carregando agendamentos...</p>
             </div>
           ) : appointments.length > 0 ? (
-            <div className="table-responsive">
-              <table className="table table-hover">
+            <div className="modern-table-container">
+              <table className="modern-table">
                 <thead>
                   <tr>
-                    <th>Cliente</th>
-                    <th>Barbeiro</th>
-                    <th>Serviço</th>
-                    <th>Data/Hora</th>
-                    <th>Status</th>
-                    <th>Ações</th>
+                    <th className="text-dark text-semibold">Cliente</th>
+                    <th className="text-dark text-semibold">Barbeiro</th>
+                    <th className="text-dark text-semibold">Serviço</th>
+                    <th className="text-dark text-semibold">Data/Hora</th>
+                    <th className="text-dark text-semibold">Status</th>
+                    <th className="text-dark text-semibold">Ações</th>
                   </tr>
                 </thead>
                 <tbody>
                   {appointments.map((appointment) => (
-                    <tr key={appointment.id}>
+                    <tr key={appointment.id} className="hover-lift transition">
                       <td>
-                        <div className="d-flex align-items-center">
-                          <div className="avatar me-2">
+                        <div className="d-flex align-center">
+                          <div className="mr-3">
                             <div 
-                              className="rounded-circle bg-primary d-flex align-items-center justify-content-center text-white"
+                              className="rounded-full bg-primary d-flex align-center justify-center text-white text-semibold"
                               style={{ width: '35px', height: '35px', fontSize: '14px' }}
                             >
                               {appointment.cliente?.nome?.charAt(0)?.toUpperCase()}
                             </div>
                           </div>
                           <div>
-                            <div className="fw-semibold">{appointment.cliente?.nome}</div>
-                            <small className="text-muted">{appointment.cliente?.telefone}</small>
+                            <div className="text-semibold text-dark">{appointment.cliente?.nome}</div>
+                            <small className="text-light">{appointment.cliente?.telefone}</small>
                           </div>
                         </div>
                       </td>
-                      <td>{appointment.barbeiro?.nome}</td>
+                      <td className="text-dark">{appointment.barbeiro?.nome}</td>
                       <td>
                         <div>
-                          <div>{appointment.servico?.nome}</div>
-                          <small className="text-muted">{appointment.servico?.duracao_minutos}min</small>
+                          <div className="text-dark">{appointment.servico?.nome}</div>
+                          <small className="text-light">{appointment.servico?.duracao_minutos}min</small>
                         </div>
                       </td>
                       <td>
                         <div>
-                          <div>{formatDate(appointment.data_hora)}</div>
-                          <small className="text-muted">
+                          <div className="text-dark">{formatDate(appointment.data_hora)}</div>
+                          <small className="text-light">
                             {formatAppointmentTimeRange(appointment.data_hora, appointment.servico?.duracao_minutos)}
                           </small>
                         </div>
@@ -288,25 +288,25 @@ const Appointments = () => {
                       <td>
                         <div className="dropdown">
                           <button 
-                            className={`btn btn-sm btn-${getStatusColor(appointment.status)} dropdown-toggle`}
+                            className={`badge bg-${getStatusColor(appointment.status)} text-white px-2 py-1 rounded text-xs cursor-pointer hover-opacity transition`}
                             type="button"
                             data-bs-toggle="dropdown"
                           >
                             {getStatusLabel(appointment.status)}
                           </button>
-                          <ul className="dropdown-menu">
-                            <li><button className="dropdown-item" onClick={() => handleStatusChange(appointment.id, 'agendado')}>Agendado</button></li>
-                            <li><button className="dropdown-item" onClick={() => handleStatusChange(appointment.id, 'confirmado')}>Confirmado</button></li>
-                            <li><button className="dropdown-item" onClick={() => handleStatusChange(appointment.id, 'em_andamento')}>Em Andamento</button></li>
-                            <li><button className="dropdown-item" onClick={() => handleStatusChange(appointment.id, 'concluido')}>Concluído</button></li>
+                          <ul className="dropdown-menu shadow-lg border-0 rounded-lg">
+                            <li><button className="dropdown-item hover-bg-light transition" onClick={() => handleStatusChange(appointment.id, 'agendado')}>Agendado</button></li>
+                            <li><button className="dropdown-item hover-bg-light transition" onClick={() => handleStatusChange(appointment.id, 'confirmado')}>Confirmado</button></li>
+                            <li><button className="dropdown-item hover-bg-light transition" onClick={() => handleStatusChange(appointment.id, 'em_andamento')}>Em Andamento</button></li>
+                            <li><button className="dropdown-item hover-bg-light transition" onClick={() => handleStatusChange(appointment.id, 'concluido')}>Concluído</button></li>
                             <li><hr className="dropdown-divider" /></li>
-                            <li><button className="dropdown-item text-danger" onClick={() => handleStatusChange(appointment.id, 'cancelado')}>Cancelar</button></li>
+                            <li><button className="dropdown-item text-error hover-bg-light transition" onClick={() => handleStatusChange(appointment.id, 'cancelado')}>Cancelar</button></li>
                           </ul>
                         </div>
                       </td>
                       <td>
                         <button 
-                          className="btn btn-sm btn-outline-primary me-1"
+                          className="modern-btn-outline text-sm px-3 py-1 hover-lift transition"
                           onClick={() => handleEdit(appointment)}
                         >
                           <i className="fas fa-edit"></i>
@@ -318,10 +318,10 @@ const Appointments = () => {
               </table>
             </div>
           ) : (
-            <div className="text-center py-5">
-              <i className="fas fa-calendar-times fa-4x text-muted mb-3"></i>
-              <h5 className="text-muted">Nenhum agendamento encontrado</h5>
-              <p className="text-muted">Use os filtros acima ou crie um novo agendamento.</p>
+            <div className="text-center py-8">
+              <i className="fas fa-calendar-times text-4xl text-light mb-3"></i>
+              <h5 className="text-light mb-2">Nenhum agendamento encontrado</h5>
+              <p className="text-light">Use os filtros acima ou crie um novo agendamento.</p>
             </div>
           )}
         </div>
@@ -329,26 +329,28 @@ const Appointments = () => {
 
       {/* Modal de Agendamento */}
       {showModal && (
-        <div className="modal show d-block" tabIndex="-1" style={{backgroundColor: 'rgba(0,0,0,0.5)'}}>
-          <div className="modal-dialog modal-lg">
-            <div className="modal-content">
-              <div className="modal-header">
-                <h5 className="modal-title">
+        <div className="modal-overlay">
+          <div className="modal-container">
+            <div className="main-card">
+              <div className="card-header d-flex justify-between align-center p-4 border-b border-white-border">
+                <h5 className="text-dark text-semibold">
                   {editingAppointment ? 'Editar Agendamento' : 'Novo Agendamento'}
                 </h5>
                 <button 
                   type="button" 
-                  className="btn-close"
+                  className="modern-btn-outline text-sm px-2 py-1"
                   onClick={() => setShowModal(false)}
-                ></button>
+                >
+                  <i className="fas fa-times"></i>
+                </button>
               </div>
               <form onSubmit={handleSubmit}>
-                <div className="modal-body">
+                <div className="p-4">
                   <div className="row g-3">
                     <div className="col-md-6">
-                      <label className="form-label">Cliente *</label>
+                      <label className="form-label text-dark text-semibold">Cliente *</label>
                       <select
-                        className="form-select"
+                        className="modern-input"
                         value={formData.cliente_id}
                         onChange={(e) => setFormData({...formData, cliente_id: e.target.value})}
                         required
@@ -360,9 +362,9 @@ const Appointments = () => {
                       </select>
                     </div>
                     <div className="col-md-6">
-                      <label className="form-label">Barbeiro *</label>
+                      <label className="form-label text-dark text-semibold">Barbeiro *</label>
                       <select
-                        className="form-select"
+                        className="modern-input"
                         value={formData.barbeiro_id}
                         onChange={(e) => setFormData({...formData, barbeiro_id: e.target.value})}
                         required
@@ -374,9 +376,9 @@ const Appointments = () => {
                       </select>
                     </div>
                     <div className="col-md-6">
-                      <label className="form-label">Serviço *</label>
+                      <label className="form-label text-dark text-semibold">Serviço *</label>
                       <select
-                        className="form-select"
+                        className="modern-input"
                         value={formData.servico_id}
                         onChange={(e) => setFormData({...formData, servico_id: e.target.value})}
                         required
@@ -390,19 +392,19 @@ const Appointments = () => {
                       </select>
                     </div>
                     <div className="col-md-6">
-                      <label className="form-label">Data e Hora *</label>
+                      <label className="form-label text-dark text-semibold">Data e Hora *</label>
                       <input
                         type="datetime-local"
-                        className="form-control"
+                        className="modern-input"
                         value={formData.data_hora}
                         onChange={(e) => setFormData({...formData, data_hora: e.target.value})}
                         required
                       />
                     </div>
                     <div className="col-12">
-                      <label className="form-label">Observações</label>
+                      <label className="form-label text-dark text-semibold">Observações</label>
                       <textarea
-                        className="form-control"
+                        className="modern-input"
                         rows="3"
                         value={formData.observacoes}
                         onChange={(e) => setFormData({...formData, observacoes: e.target.value})}
@@ -411,16 +413,16 @@ const Appointments = () => {
                     </div>
                   </div>
                 </div>
-                <div className="modal-footer">
+                <div className="card-footer d-flex justify-end gap-3 p-4 border-t border-white-border">
                   <button 
                     type="button" 
-                    className="btn btn-secondary"
+                    className="modern-btn-secondary"
                     onClick={() => setShowModal(false)}
                   >
                     Cancelar
                   </button>
-                  <button type="submit" className="btn btn-primary">
-                    <i className="fas fa-save me-2"></i>
+                  <button type="submit" className="modern-btn-primary">
+                    <i className="fas fa-save mr-2"></i>
                     Salvar Agendamento
                   </button>
                 </div>

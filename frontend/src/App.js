@@ -30,12 +30,18 @@ function App() {
 
   if (loading) {
     return (
-      <div className="d-flex justify-content-center align-items-center min-vh-100">
-        <div className="text-center">
-          <div className="spinner-border text-primary mb-3" role="status">
-            <span className="visually-hidden">Carregando...</span>
+      <div className="app-container">
+        <div className="main-background">
+          <div className="floating-shape"></div>
+          <div className="floating-shape"></div>
+          <div className="floating-shape"></div>
+          <div className="floating-shape"></div>
+        </div>
+        <div className="d-flex justify-center align-center min-h-screen">
+          <div className="main-card text-center">
+            <div className="spinner mb-3"></div>
+            <h5 className="text-dark">Carregando Sistema...</h5>
           </div>
-          <h5>Carregando Sistema...</h5>
         </div>
       </div>
     );
@@ -50,11 +56,18 @@ function App() {
             <Route path="*" element={<Navigate to="/login" replace />} />
           </Routes>
         ) : (
-          <div className="d-flex">
-            <Sidebar />
-            <div className="flex-fill">
-              <Header />
-              <main className="main-content">
+          <div className="app-container">
+            <div className="main-background">
+              <div className="floating-shape"></div>
+              <div className="floating-shape"></div>
+              <div className="floating-shape"></div>
+              <div className="floating-shape"></div>
+            </div>
+            <div className="d-flex">
+              <Sidebar />
+              <div className="flex-1">
+                <Header />
+                <main className="main-content">
                 <Routes>
                   <Route 
                     path="/" 
@@ -122,7 +135,8 @@ function App() {
                   />
                   <Route path="*" element={<Navigate to="/" replace />} />
                 </Routes>
-              </main>
+                </main>
+              </div>
             </div>
           </div>
         )}

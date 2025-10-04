@@ -31,11 +31,11 @@ if DATABASE_URL.startswith("sqlite"):
         DATABASE_URL, 
         connect_args={
             "check_same_thread": False,
-            "timeout": 20
+            "timeout": 5
         },
         pool_pre_ping=True,
         poolclass=StaticPool,
-        echo=False  # Set to True for SQL logging in development
+        echo=True  # Enable SQL logging to debug issues
     )
 else:
     # PostgreSQL optimizations for production

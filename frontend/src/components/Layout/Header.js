@@ -41,10 +41,10 @@ const Header = () => {
       <div className="d-flex justify-content-between align-items-center w-100">
         {/* Saudação e informações */}
         <div>
-          <h4 className="mb-1 fw-bold">
+          <h4 className="mb-1 text-semibold text-dark">
             {getGreeting()}, {user?.nome?.split(' ')[0]}! 👋
           </h4>
-          <p className="mb-0 text-muted">
+          <p className="mb-0 text-medium">
             <i className="fas fa-calendar-day me-2"></i>
             {formatDate(currentTime)}
           </p>
@@ -54,15 +54,15 @@ const Header = () => {
         <div className="d-flex align-items-center gap-3">
           {/* Horário atual */}
           <div className="text-end d-none d-md-block">
-            <div className="fw-bold text-primary">{formatTime(currentTime)}</div>
-            <small className="text-muted">Horário atual</small>
+            <div className="text-semibold text-primary">{formatTime(currentTime)}</div>
+            <small className="text-light">Horário atual</small>
           </div>
 
           {/* Notificações */}
           <div className="position-relative">
-            <button className="btn btn-outline-secondary position-relative">
+            <button className="modern-btn-outline position-relative">
               <i className="fas fa-bell"></i>
-              <span className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+              <span className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-error">
                 3
                 <span className="visually-hidden">notificações não lidas</span>
               </span>
@@ -71,7 +71,7 @@ const Header = () => {
 
           {/* Toggle de tema */}
           <button 
-            className="theme-toggle"
+            className="modern-btn-outline"
             onClick={toggleTheme}
             title={`Mudar para tema ${theme === 'light' ? 'escuro' : 'claro'}`}
           >
@@ -81,7 +81,7 @@ const Header = () => {
           {/* Menu do usuário */}
           <div className="dropdown">
             <button 
-              className="btn btn-outline-primary dropdown-toggle d-flex align-items-center"
+              className="modern-btn-secondary dropdown-toggle d-flex align-items-center"
               type="button"
               data-bs-toggle="dropdown"
               aria-expanded="false"
@@ -89,29 +89,29 @@ const Header = () => {
               <i className="fas fa-user-circle me-2"></i>
               <span className="d-none d-md-inline">{user?.nome}</span>
             </button>
-            <ul className="dropdown-menu dropdown-menu-end">
+            <ul className="dropdown-menu dropdown-menu-end secondary-card">
               <li>
                 <span className="dropdown-item-text">
-                  <div className="fw-bold">{user?.nome}</div>
-                  <small className="text-muted">{user?.email}</small>
+                  <div className="text-semibold text-dark">{user?.nome}</div>
+                  <small className="text-light">{user?.email}</small>
                 </span>
               </li>
               <li><hr className="dropdown-divider" /></li>
               <li>
-                <a className="dropdown-item" href="/configuracoes">
+                <a className="dropdown-item text-dark hover-lift" href="/configuracoes">
                   <i className="fas fa-user-cog me-2"></i>
                   Meu Perfil
                 </a>
               </li>
               <li>
-                <a className="dropdown-item" href="/configuracoes">
+                <a className="dropdown-item text-dark hover-lift" href="/configuracoes">
                   <i className="fas fa-cog me-2"></i>
                   Configurações
                 </a>
               </li>
               <li><hr className="dropdown-divider" /></li>
               <li>
-                <a className="dropdown-item text-danger" href="#">
+                <a className="dropdown-item text-error hover-lift" href="#">
                   <i className="fas fa-sign-out-alt me-2"></i>
                   Sair
                 </a>
